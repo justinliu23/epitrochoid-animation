@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas</title>
+    <style>
+      body {
+        overflow: hidden;
+        margin: 0;
+      }
+    </style>
+    <!-- <script src="script.js" defer></script>
+    <link href="style.css" rel="stylesheet"> -->
+  </head>
+
+  <body>
+    <canvas class="myCanvas">
+      <script>
+        const canvas = document.querySelector(".myCanvas");
+        const width = (canvas.width = window.innerWidth);
+        const height = (canvas.height = window.innerHeight);
+        const ctx = canvas.getContext("2d");
+
+        function degToRad(degrees) {
+          return (degrees * Math.PI) / 180;
+        }
+
+        class Drawer {
+          constructor(c1x, c1y, R, r, L) {
+            this.startingc1x = c1x;
+            this.startingc1y = c1y;
+            this.c2x = c1x + R + r;
+            this.c2y = c1y;
+            this.Lx = c1x + R + r + L;
+            this.Ly = c1y;
+            this.R = R;
+            this.r = r;
+            this.L = L;
+            this.pointsx = [c1x + R + r + L];
+            this.pointsy = [c1y];
+            this.currentangle = 0;
+          }
+
+          drawBigCircle() {
+            ctx.beginPath();
+            let lastlength = this.pointsx.length - 1;
+            ctx.arc(this.startingc1x, this.startingc1y, this.R, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+
+          drawSmallCircle() {
+            ctx.beginPath();
+            ctx.arc(this.c2x, this.c2y, this.r, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+
+          drawL() {
+            ctx.strokeStyle = 'rgb(255,0,0)';
+            ctx.beginPath();
+            ctx.moveTo(this.c2x, this.c2y);
+            ctx.lineTo(this.Lx, this.Ly);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgb(0,0,0)';
+          }
+
+          drawEpi() {
+            ctx.strokeStyle = 'rgb(0,0,255)';
+            ctx.beginPath();
+            ctx.moveTo(this.pointsx[0], this.pointsy[0]);
+            for (let i = 1; i < this.pointsx.length; i++) {
+              ctx.lineTo(this.pointsx[i], this.pointsy[i]);
+            }
+            ctx.stroke();
+            ctx.strokeStyle = 'rgb(0,0,0)';
+          }
+
+          draw() {
+            this.drawBigCircle();
+            this.drawSmallCircle();
+            this.drawL();
+            this.drawEpi();
+          }
+
+          update() {
+            this.currentangle += 0.1;
+            let theta = degToRad(this.currentangle);
+            this.c2x = (this.R + this.r) * Math.cos(theta);
+            this.c2y = -(this.R + this.r) * Math.sin(theta);
+            this.Lx =
+              (this.R + this.r) * Math.cos(theta) +
+              this.L * Math.cos(theta + (this.R / this.r) * theta);
+            this.Ly = -(
+              (this.R + this.r) * Math.sin(theta) +
+              this.L * Math.sin(theta + (this.R / this.r) * theta)
+            );
+            this.pointsx.push(this.Lx);
+            this.pointsy.push(this.Ly);
+          }
+        }
+
+        ctx.translate(width / 2, height / 2);
+
+        const drawing = new Drawer(0, 0, 400, 10, 300);
+
+        function animation() {
+          drawing.update();
+          ctx.clearRect(-width / 2, -height / 2, width, height);
+          drawing.draw();
+          requestAnimationFrame(animation);
+        }
+
+        animation();
+      </script>
+      <p>Add suitable fallback here.</p>
+    </canvas>
+  </body>
+</html>
